@@ -1,12 +1,8 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-// https://vitejs.dev/config/
+// Vite configuration
 export default defineConfig({
   plugins: [react()],
-  experimental: {
-    renderBuiltUrl(filename) {
-      return "https://popularizers.in/alpha/" + filename;
-    },
-  },
+  base: "./", // use './' if deploying as a static site (Netlify, etc.)
 });
