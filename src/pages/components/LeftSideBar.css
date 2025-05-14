@@ -1,0 +1,50 @@
+.logo-back {
+  background-color: #8aaae5;
+  border-radius: 20px;
+  padding: 20px;
+}
+.menu {
+  background-color: #8aaae5;
+  border-radius: 20px;
+  padding: 10px;
+  margin-top: 15px;
+}
+.menu ul li {
+  list-style-type: none;
+  color: #b0b0b0;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 15px;
+}
+a.active {
+  background-color: #313131;
+  color: #fff !important;
+  width: 192px;
+  margin-left: -10px;
+}
+
+.user-name {
+  background-color: #1a1a1a;
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+}
+.initial {
+  background-color: #04d9c4;
+  height: 50px;
+  width: 50px;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 700;
+}
+li {
+  cursor: pointer;
+}

@@ -1,0 +1,6 @@
+.pagination {
+  --bs-pagination-disabled-color: #fff !important;
+  --bs-pagination-disabled-bg: #000 !important;
+  --bs-pagination-color: #fff !important;
+  --bs-pagination-bg: #000 !important;
+}

@@ -1,0 +1,485 @@
+import {
+  IonButton,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonIcon,
+  IonModal,
+  IonRow,
+} from "@ionic/react";
+import "./Home.css";
+import dayjs from "dayjs";
+import { API } from "../../../services/Api";
+import { toast } from "react-toastify";
+import LeftSideBar from "../../components/teamleader/LeftSideBar";
+import Header from "../../components/Header";
+import { useEffect, useState } from "react";
+import ReactPaginate from "react-paginate";
+import { useHistory } from "react-router";
+import { close } from "ionicons/icons";
+const AfterCallingData: React.FC = () => {
+  const [managerList, setmanagerList] = useState<any>([]);
+  const [callingList, setcallingList] = useState<any>([]);
+  const [currentManagerUID, setcurrentManagerUID] = useState<any>("");
+  const navigate = useHistory();
+
+  useEffect(() => {
+    const techno_calling_admin = JSON.parse(
+      localStorage.getItem("techno_calling_admin") || "{}"
+    );
+    getParentRole();
+  }, [0]);
+  const getParentRole = () => {
+    const techno_calling_admin = JSON.parse(
+      localStorage.getItem("techno_calling_admin") || "{}"
+    );
+    // setcurrentManagerUID(techno_calling_admin.uid);
+    API.postData("get/my/parent/info", {
+      access_key: techno_calling_admin.access_key,
+    })
+      .then((response: any) => {
+        console.log(response.data);
+        if (response.data.status == 1) {
+          getCatList(0, response.data.manager_info.user_uid);
+          setcurrentManagerUID(response.data.manager_info.user_uid);
+        } else {
+        }
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
+  };
+  const [currentProfile, setcurrentProfile] = useState<any>("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [pageCount, setpageCount] = useState(0);
+  const [userType, setuserType] = useState("");
+  const [users, setusers] = useState<any>([]);
+
+  const usersList = (e: any, index: any) => {
+    // setcurrentManagerUID(e.target.value);
+    const techno_calling_admin = JSON.parse(
+      localStorage.getItem("techno_calling_admin") || "{}"
+    );
+    API.postData("get/all/category/list?page=" + index, {
+      access_key: techno_calling_admin.access_key,
+      manager_uid: e.target.value,
+    })
+      .then((response: any) => {
+        console.log(response.data);
+        if (response.data.status == 1) {
+          setusers(response.data.category_list);
+        } else {
+          setusers([]);
+        }
+      })
+      .catch((error: any) => {
+        console.log(error);
+        toast.error(error.response.data.message);
+        setusers([]);
+        setpageCount(0);
+      });
+  };
+  const handlePageClick = (event: any) => {
+    usersList(userType, event.selected);
+  };
+  const changeStatus = (e: any, aftercallingcomment_uid: any) => {
+    var status = "";
+    if (e.target.value == "1") {
+      status = "active";
+    } else {
+      status = "inactive";
+    }
+    const techno_calling_admin = JSON.parse(
+      localStorage.getItem("techno_calling_admin") || "{}"
+    );
+    API.postData("change/aftercallingcomment/status", {
+      access_key: techno_calling_admin.access_key,
+      manager_uid: currentManagerUID,
+      aftercallingcomment_uid: aftercallingcomment_uid,
+      status: status,
+    })
+      .then((response: any) => {
+        console.log(response.data);
+        if (response.data.status == 1) {
+          toast.success(response.data.message);
+          getCatList(0, currentManagerUID);
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error: any) => {
+        console.log(error);
+        toast.error(error.response.data.message);
+      });
+  };
+  const getCatList = (index: any, manager_uid: any) => {
+    const techno_calling_admin = JSON.parse(
+      localStorage.getItem("techno_calling_admin") || "{}"
+    );
+    API.postData("get/all/aftercallingcomment/list?page=" + index, {
+      access_key: techno_calling_admin.access_key,
+      manager_uid: manager_uid,
+    })
+      .then((response: any) => {
+        console.log(response.data);
+        if (response.data.status == 1) {
+          setmanagerList(response.data.aftercallingcomment_list);
+          const total = response.data.aftercallingcomment_list.length / 10;
+          setpageCount(total);
+        } else {
+          setcallingList([]);
+          setpageCount(0);
+        }
+      })
+      .catch((error: any) => {
+        console.log(error);
+        toast.error(error.response.data.message);
+        setcallingList([]);
+        setpageCount(0);
+      });
+  };
+  const setProfile = (item: any) => {
+    setIsOpen(true);
+    setcurrentProfile(item);
+  };
+  return (
+    <IonContent fullscreen>
+      <div className="container-fluid ">
+        <div className="row">
+          <div className="col-12 padding-left-275 pr-0">
+            <LeftSideBar />
+
+            <div className="containt-area">
+              <div className="top-strip d-flex ">
+                <div className="d-flex align-items-center">
+                  <Header />
+                </div>
+              </div>
+
+              <div className="container-fluid px-4">
+                <div className="row">
+                  <div className="col-6">
+                    <h2 className="welcome-title mt-4 mb-3">
+                      After Calling Data{" "}
+                      <button
+                        className="outline-btn"
+                        onClick={() => navigate.push("/add-after-calling-data")}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="feather feather-plus"
+                        >
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>{" "}
+                        &nbsp; Add After Calling Data
+                      </button>
+                    </h2>
+                  </div>
+                </div>
+                {/* <div className="row">
+                  <div className="col-3">
+                    <select
+                      className="rec-select2 mt-2"
+                      onChange={(e) => usersList(e, 0)}
+                    >
+                      <option value="">Please select manager</option>
+                      {managerList.length > 0 &&
+                        managerList.map((item: any, key: any) => (
+                          <option key={key} value={item.uid}>
+                            {item.fname} {item.lname}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div className="col-3">
+                    <select
+                      className="rec-select2 mt-2"
+                      onChange={(e) => subcategoryList(e, 0)}
+                    >
+                      <option value="">Please select category</option>
+                      {users.length > 0 &&
+                        users.map((item: any, key: any) => (
+                          <option key={key} value={item.uid}>
+                            {item.name} ({item.code})
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div className="col-3">
+                    <select
+                      className="rec-select2 mt-2"
+                      onChange={(e) => categoryList(e, 0)}
+                    >
+                      <option value="">Please select sub category</option>
+                      {subcallingList.length > 0 &&
+                        subcallingList.map((item: any, key: any) => (
+                          <option key={key} value={item.uid}>
+                            {item.name} ({item.code})
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                </div> */}
+
+                <div className="row pb-5 mb-4 mt-3">
+                  <div className="col-12 tab-scrl">
+                    <table className="min-width-800">
+                      <thead>
+                        <tr>
+                          <th>Comment</th>
+                          <th>Price (In Rupees)</th>
+
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {managerList.length == 0 && (
+                          <tr>
+                            <td>
+                              <p className="color-white">
+                                No after calling data found.
+                              </p>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                      <tbody>
+                        {managerList.length > 0 &&
+                          managerList.map((item: any, key: any) => (
+                            <tr key={key} style={{ cursor: "pointer" }}>
+                              <td>
+                                <p className="color-white weight-medium font-14 m-0">
+                                  {item.comment}
+                                </p>
+                              </td>
+
+                              <td>
+                                {" "}
+                                <p className="color-white weight-medium font-14 m-0">
+                                  {item.price}
+                                </p>{" "}
+                              </td>
+
+                              <td>
+                                <select
+                                  value={item.status}
+                                  className="rec-select mt-2 "
+                                  style={{ fontWeight: "bold" }}
+                                  onChange={(e) => changeStatus(e, item.uid)}
+                                >
+                                  <option value="1">Active</option>
+                                  <option value="0">Inactive</option>
+                                </select>
+                              </td>
+                              <td>
+                                <IonButton
+                                  onClick={() => setProfile(item)}
+                                  color={"success"}
+                                  shape="round"
+                                >
+                                  View
+                                </IonButton>
+                                &nbsp;
+                                <IonButton
+                                  onClick={() =>
+                                    navigate.push(
+                                      "/edit-after-calling-data/" +
+                                        item.uid +
+                                        "/" +
+                                        currentManagerUID
+                                    )
+                                  }
+                                  color={"success"}
+                                  shape="round"
+                                >
+                                  Edit
+                                </IonButton>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <br />
+
+                  <div style={{ display: "flex", justifyContent: "end" }}>
+                    <ReactPaginate
+                      pageRangeDisplayed={3}
+                      marginPagesDisplayed={2}
+                      pageClassName="page-item"
+                      pageLinkClassName="page-link"
+                      previousClassName="page-item"
+                      previousLinkClassName="page-link"
+                      nextClassName="page-item"
+                      nextLinkClassName="page-link"
+                      breakLabel="..."
+                      breakClassName="page-item"
+                      breakLinkClassName="page-link"
+                      containerClassName="pagination"
+                      activeClassName="active"
+                      nextLabel="Next"
+                      onPageChange={handlePageClick}
+                      pageCount={pageCount}
+                      previousLabel="Previous"
+                      renderOnZeroPageCount={null}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <IonModal
+        onWillDismiss={() => setIsOpen(false)}
+        isOpen={isOpen}
+        style={{
+          "--border-radius": "20px",
+          "--width": "1080px",
+          "--height": "700px",
+        }}
+      >
+        <IonContent className="ion-padding">
+          <IonGrid fixed>
+            <IonRow style={{ padding: "10px" }}>
+              <IonCol size="11">
+                <label
+                  className="color-white d-block  position-relative"
+                  style={{ fontSize: "22px", fontWeight: "bold" }}
+                >
+                  After Calling Data Details
+                </label>
+              </IonCol>
+              <IonCol size="1">
+                <IonIcon
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setIsOpen(false)}
+                  size="large"
+                  icon={close}
+                ></IonIcon>
+              </IonCol>
+            </IonRow>
+            <IonRow style={{ padding: "10px" }}>
+              <IonCol size="3.8">
+                <label className="font-18 color-white d-block  position-relative">
+                  Comment
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  defaultValue={currentProfile?.comment}
+                  className="rec-select2 mt-2"
+                />
+              </IonCol>
+              <IonCol size="0.2"></IonCol>
+              <IonCol size="3.8">
+                <label className="font-18 color-white d-block  position-relative">
+                  Price (In Rupees)
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  defaultValue={currentProfile?.price}
+                  className="rec-select2 mt-2"
+                />
+              </IonCol>
+              <IonCol size="0.2"></IonCol>
+              <IonCol size="4">
+                <label className="font-18 color-white d-block  position-relative">
+                  Status
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  defaultValue={
+                    currentProfile?.status == "1" ? "Active" : "Inactive"
+                  }
+                  className="rec-select2 mt-2"
+                />
+              </IonCol>
+            </IonRow>
+
+            <IonRow style={{ padding: "10px" }}>
+              <IonCol size="3.8">
+                <label className="font-18 color-white d-block  position-relative">
+                  Added First Name
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  defaultValue={currentProfile?.added_by_fname}
+                  className="rec-select2 mt-2"
+                />
+              </IonCol>
+              <IonCol size="0.2"></IonCol>
+              <IonCol size="3.8">
+                <label className="font-18 color-white d-block  position-relative">
+                  Added Last Name
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  defaultValue={currentProfile?.added_by_lname}
+                  className="rec-select2 mt-2"
+                />
+              </IonCol>
+              <IonCol size="0.2"></IonCol>
+              <IonCol size="4">
+                <label className="font-18 color-white d-block  position-relative">
+                  Added Role
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  defaultValue={currentProfile?.added_by_role}
+                  className="rec-select2 mt-2"
+                />
+              </IonCol>
+            </IonRow>
+            <IonRow style={{ padding: "10px" }}>
+              <IonCol size="3.8">
+                <label className="font-18 color-white d-block  position-relative">
+                  Added Date
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  defaultValue={dayjs(currentProfile?.added_on).format(
+                    "MMMM DD, YYYY hh:mm A"
+                  )}
+                  className="rec-select2 mt-2"
+                />
+              </IonCol>
+              <IonCol size="0.2"></IonCol>
+              <IonCol size="3.8">
+                <label className="font-18 color-white d-block  position-relative">
+                  Expiry
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  defaultValue={dayjs(currentProfile?.expiry).format(
+                    "MMMM DD, YYYY hh:mm A"
+                  )}
+                  className="rec-select2 mt-2"
+                />
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonContent>
+      </IonModal>
+    </IonContent>
+  );
+};
+
+export default AfterCallingData;
